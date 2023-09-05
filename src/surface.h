@@ -6,7 +6,8 @@ struct Surface
 {
     std::vector<float> xyzArray;
 
-    Surface(std::size_t VertexCountPerSide = 60)
+    Surface(float (*f)(float, float),
+            std::size_t VertexCountPerSide = 60)
     {
         const std::size_t CoordinateCount = VertexCountPerSide * VertexCountPerSide * 3;
         const float vertexStep = 2.0 / (VertexCountPerSide - 1);
@@ -19,7 +20,7 @@ struct Surface
             {
                 const auto x = -1.0f + column * vertexStep;
                 const auto y = -1.0f + row * vertexStep;
-                const auto z = 0.0f;
+                const auto z = f(x, y);
 
                 const auto vertexStartIndex = (row * VertexCountPerSide + column) * 3;
 

@@ -39,7 +39,17 @@ private:
     wxGLContext *openGLContext;
     bool isOpenGLInitialized{false};
 
-    Surface s{};
+    Surface s{&f};
+
+    static float f(float x, float y)
+    {
+        constexpr float epsilon = 0.0001f;
+        constexpr float k = 10.0f;
+        if (std::abs(x) < epsilon && std::abs(y) < epsilon)
+            return 1.0f;
+        else
+            return sin(sqrt(pow(x * k, 2) + pow(y * k, 2))) / sqrt(pow(x * k, 2) + pow(y * k, 2)); // sombrero equation
+    }
 
     unsigned int VAO, VBO, shaderProgram;
 };
