@@ -3,6 +3,10 @@
 #include <GL/glew.h> // must be included before glcanvas.h
 #include <wx/glcanvas.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "surface.h"
 
 class MyApp : public wxApp
@@ -35,9 +39,14 @@ public:
     void OnPaint(wxPaintEvent &event);
     void OnSize(wxSizeEvent &event);
 
+    void OnKeyDown(wxKeyEvent &event);
+
 private:
     wxGLContext *openGLContext;
     bool isOpenGLInitialized{false};
+
+    float anglez{0.0f};
+    float anglex{0.0f};
 
     Surface s{&f};
 
@@ -102,6 +111,8 @@ OpenGLCanvas::OpenGLCanvas(MyFrame *parent, const wxGLAttributes &canvasAttrs)
 
     Bind(wxEVT_PAINT, &OpenGLCanvas::OnPaint, this);
     Bind(wxEVT_SIZE, &OpenGLCanvas::OnSize, this);
+
+    Bind(wxEVT_KEY_DOWN, &OpenGLCanvas::OnKeyDown, this);
 }
 
 OpenGLCanvas::~OpenGLCanvas()
@@ -147,9 +158,11 @@ bool OpenGLCanvas::InitializeOpenGL()
         #version 330 core
         layout (location = 0) in vec3 aPos;
 
+        uniform mat4 modelMatrix;
+
         void main()
         {
-            gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+            gl_Position = modelMatrix * vec4(aPos.x, aPos.y, aPos.z, 1.0);
         }
     )";
 
@@ -236,6 +249,14 @@ void OpenGLCanvas::OnPaint(wxPaintEvent &WXUNUSED(event))
 
     glUseProgram(shaderProgram);
 
+    auto modelMatrix = glm::mat4(1.0f);
+
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(anglex), glm::vec3(1.0f, 0.0f, 0.0f));
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(anglez), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    auto modelMatrixLocation = glGetUniformLocation(shaderProgram, "modelMatrix");
+    glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+
     glDrawArrays(GL_POINTS, 0, s.xyzArray.size() / 3);
 
     SwapBuffers();
@@ -257,4 +278,32 @@ void OpenGLCanvas::OnSize(wxSizeEvent &event)
     }
 
     event.Skip();
+}
+
+void OpenGLCanvas::OnKeyDown(wxKeyEvent &event)
+{
+    constexpr float AngleIncrement = 5.0f;
+
+    if (event.GetKeyCode() == WXK_LEFT)
+    {
+        anglez -= AngleIncrement;
+    }
+    else if (event.GetKeyCode() == WXK_RIGHT)
+    {
+        anglez += AngleIncrement;
+    }
+    else if (event.GetKeyCode() == WXK_UP)
+    {
+        anglex += AngleIncrement;
+    }
+    else if (event.GetKeyCode() == WXK_DOWN)
+    {
+        anglex -= AngleIncrement;
+    }
+    else
+    {
+        event.Skip();
+    }
+
+    Refresh();
 }
