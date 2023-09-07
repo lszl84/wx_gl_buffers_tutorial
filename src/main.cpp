@@ -60,7 +60,7 @@ private:
             return sin(sqrt(pow(x * k, 2) + pow(y * k, 2))) / sqrt(pow(x * k, 2) + pow(y * k, 2)); // sombrero equation
     }
 
-    unsigned int VAO, VBO, shaderProgram;
+    unsigned int VAO, VBO, EBO, shaderProgram;
 };
 
 wxIMPLEMENT_APP(MyApp);
@@ -220,6 +220,7 @@ bool OpenGLCanvas::InitializeOpenGL()
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
 
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -227,6 +228,12 @@ bool OpenGLCanvas::InitializeOpenGL()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
 
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, s.lineEndpointIndices.size() * sizeof(unsigned int), s.lineEndpointIndices.data(), GL_STATIC_DRAW);
+
+    glBindVertexArray(0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     isOpenGLInitialized = true;
@@ -257,7 +264,8 @@ void OpenGLCanvas::OnPaint(wxPaintEvent &WXUNUSED(event))
     auto modelMatrixLocation = glGetUniformLocation(shaderProgram, "modelMatrix");
     glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
-    glDrawArrays(GL_POINTS, 0, s.xyzArray.size() / 3);
+    glBindVertexArray(VAO);
+    glDrawElements(GL_LINES, s.lineEndpointIndices.size(), GL_UNSIGNED_INT, 0);
 
     SwapBuffers();
 }
