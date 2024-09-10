@@ -1,8 +1,8 @@
-# wx_gl_buffers_tutorial
-
 Modern OpenGL App (Core Profile) with wxWidgets as the UI Framework for displaying 3D surface wireframe charts.
 
-![Surface Chart](/surface.png)
+[![Video](/output.gif)](https://www.youtube.com/watch?v=DsMohErqXzg)
+
+Full Tutorial: https://www.youtube.com/watch?v=DsMohErqXzg
 
 ## How this works
 
@@ -38,6 +38,6 @@ cmake --build build
 This will create a directory named `build` and create all build artifacts there. The main executable can be found in the `build/subprojects/Build/wx_gl_buffers_tutorial_core` folder.
 
 ---
-Check out the blog for more! [www.justdevtutorials.com](https://www.justdevtutorials.com)
+Check out the blog for more! [www.lukesdevtutorials.com](https://www.lukesdevtutorials.com)
 ---
 
